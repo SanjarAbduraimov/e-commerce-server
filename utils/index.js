@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const { baseUrl } = require("../utils");
 const { SECRET_KEY, RESET_PASSWORD_KEY } = require("../constants");
 const mongoose = require("mongoose");
-const chalk = require("chalk");
 const ObjectId = require('mongodb').ObjectId;
 
 exports.baseUrl =
@@ -132,7 +131,7 @@ exports.baseUrl =
 
   exports.authHandler = async (req, res, next) => {
     try {
-      const whiteList = ["/auth/sign-in", "/auth/sign-up", "/socket.io/", "/auth/reset-password/request", "/auth/reset-password/reset"];
+      const whiteList = ["/auth/sign-in", "/auth/sign-up", ];
       const isGetFileURL = (req.url.startsWith('/uploads') && req.method === 'GET');
       console.log(req.url)
       if (isGetFileURL || req.url.includes('/socket.io/')) {
