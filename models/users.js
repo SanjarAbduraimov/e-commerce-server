@@ -4,7 +4,6 @@ const { Schema } = mongoose;
 const userSchema = new Schema(
   {
     address: String,
-    company: String,
     email: {
       required: true,
       type: String,
@@ -15,7 +14,6 @@ const userSchema = new Schema(
       default: "user",
       type: String,
     },
-    locationType: String,
     name: String,
     lastName: String,
     password: {
