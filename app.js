@@ -13,9 +13,8 @@ const port = process.env.PORT || 9999;
 const database = "mongodb://localhost/server-students-db";
 
 const usersRouter = require("./routes/users");
-// const locationsRouter = require("./routes/locations");
-// const dashboardRouter = require("./routes/dashboard");
-// const storageRouter = require("./routes/storage");
+const categoriesRouter = require("./routes/categories");
+const productsRouter = require("./routes/products");
 const authRouter = require("./routes/auth");
 
 const app = express();
@@ -46,10 +45,9 @@ app.use(
 );
 
 app.use(isLoggedIn);
-// app.use("/dashboard", dashboardRouter);
-// app.use("/storage", storageRouter);
 app.use("/users", usersRouter);
-// app.use("/locations", locationsRouter);
+app.use("/categories", categoriesRouter);
+app.use("/products", productsRouter);
 app.use("/auth", authRouter);
 
 mongoose

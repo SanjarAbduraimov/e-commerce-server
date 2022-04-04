@@ -56,7 +56,7 @@ exports.signUp = async (req, res) => {
 exports.getProfile = async (req, res) => {
   const { role, _id } = req.locals;
   try {
-    const user = await models[util.getModelName(role)].findById(_id);
+    const user = await Users.findById(_id);
     res.json({ success: true, payload: user });
   } catch (err) {
     error(err);

@@ -1,8 +1,7 @@
 const Products = require("../models/products");
 const Category = require("../models/categories");
 const util = require("../utils");
-const Carts = require("../models/cart");
-const Currency = require("../models/currency");
+// const Carts = require("../models/cart");
 
 const collationConfig = {
   numericOrdering: true,
@@ -18,12 +17,11 @@ exports.fetchAllProducts = (req, res) => {
     price_to,
     quantity_from = 0,
     quantity_to,
-    isFeatured = false,
     color_name,
   } = req.query;
-  const { userId, userType } = req.locale;
+  const { userType } = req.locale;
   let sortWhiteList = [
-    'name', 'price_from', 'price_to', 'color', 'quantity_from', 'quantity_to', 'isFeatured', 'category'
+    'name', 'price_from', 'price_to', 'color', 'quantity_from', 'quantity_to', 'category'
   ];
   let queryList = { ...null };
   sortWhiteList.forEach((query) => {
@@ -77,7 +75,7 @@ exports.fetchAllProducts = (req, res) => {
 
   let queryFilter = { ...queryList };
 
-  const storeId = userType !== "customer" ? { storeId: userId } : {};
+  // const storeId = userType !== "customer" ? { storeId: userId } : {};
 
   console.log(queryFilter, 'queryFilter', isFeatured)
 
@@ -87,51 +85,17 @@ exports.fetchAllProducts = (req, res) => {
       collation: collationConfig,
       page,
       limit: pageSize, 
-      populate: { path: "seller", select: "name" },
       populate: {
         path: "category",
-        select: "slug name uz ru",
       },
     }
   )
     .then((data) => {
-      console.log(data, "products in admin");
       const { docs, ...pages } = data;
       res.json({ data: docs, pages, success: true });
     })
     .catch((err) => res.json({ msg: err.message, success: false }));
 }; 
-
-exports.fetchFeaturedProducts = (req, res) => {
-  const { page = 1 } = req.query;
-  const userType = req.locale?.userType;
-  const userId = req.locale?.userType;
-  let storeId = { isFeatured: true };
-  if (userId) {
-    storeId =
-      userType === "customer"
-        ? { storeId: userId, isFeatured: true }
-        : { isFeatured: true };
-  }
-  const pageSize = 10;
-  Products.paginate(storeId, {
-    collation: collationConfig,
-    page,
-    limit: pageSize,
-    projection: {
-      price: 0,
-      priceUnit: 0,
-      storeId: 0,
-      createdAt: 0,
-      seller: 0,
-    },
-  })
-    .then((data) => {
-      const { docs, ...pages } = data;
-      res.json({ data: docs, pages, success: true });
-    })
-    .catch((err) => res.json({ msg: err.message, success: false }));
-};
 
 exports.fetchPublicProducts = (req, res) => {
   const { page = 1 } = req.query;
@@ -146,11 +110,9 @@ exports.fetchPublicProducts = (req, res) => {
       projection: {
         price: 0,
         priceUnit: 0,
-        storeId: 0,
         createdAt: 0,
-        seller: 0,
       },
-      populate: { path: "category", select: "slug name uz ru" },
+      populate: { path: "category" },
     }
   )
     .then((data) => {

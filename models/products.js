@@ -46,14 +46,7 @@ const productsSchema = new Schema({
     default: 'uzs',
     type: String
   },
-  seller: {
-    ref: 'Seller',
-    type: String
-  },
-  storeId: {
-    refPath: 'creator',
-    type: Schema.Types.ObjectId
-  },
+  size: String,
   updatedAt: {
     default: Date.now(),
     type: Date
@@ -61,7 +54,7 @@ const productsSchema = new Schema({
 });
 
 // https://mongoosejs.com/docs/populate.html#dynamic-ref
-// productsSchema.index({ name: 1 });
+productsSchema.index({ name: 1 });
 productsSchema.plugin(mongoosePaginate);
 const Products = mongoose.model('Product', productsSchema);
 

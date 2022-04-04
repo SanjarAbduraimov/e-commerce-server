@@ -11,11 +11,6 @@ const categorySchema = new Schema({
   img: { type: String, default: '' },
   products: { type: Number, default: 0 },
   ru: String,
-  slug: String,
-  storeId: {
-    ref: 'User',
-    type: Schema.Types.ObjectId
-  },
   updatedAt: {
     default: Date.now(),
     type: Date
