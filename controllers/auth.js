@@ -8,7 +8,7 @@ const { createToken, createFileUrl, resizeImg } = require("../utils/index");
 exports.signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body)
+    console.log(req.body, 'booodyyy')
     if (isCredentialsValid(req.body) !== true) {
       return res.status(400).json(isCredentialsValid);
     }
@@ -17,7 +17,7 @@ exports.signIn = async (req, res) => {
       const { password: hash } = user;
       const isPasswordCorrect = await bcrypt.compare(password, hash);
       const token = createToken({ _id: user._id, role: user.role ?? "user" });
-      console.log('user is found and password is correct');
+      console.log('user is found and password is correct', isPasswordCorrect, user);
       if (isPasswordCorrect) {
         res.json({ payload: user, token, success: true });
       } else {
@@ -41,7 +41,7 @@ exports.signUp = async (req, res) => {
   try {
     if (!email) return res.status(400).json({ msg: 'email required' });
     if (!req.body.password) return res.status(400).json({ msg: 'password required' });
-    const user = await Users.create({ ...req.body });
+    const user = await Users.create({ ...req.body, password: hashedPassword });
     const token = createToken({ _id: user?._id, role: user?.role ?? "user" });
     res.json({ user: user, token, success: true });
   } catch (err) {

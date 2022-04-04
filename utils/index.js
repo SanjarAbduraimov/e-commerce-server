@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { baseUrl } = require("../utils");
 const { SECRET_KEY, RESET_PASSWORD_KEY } = require("../constants");
 const mongoose = require("mongoose");
+const User = require("../models/users");
 const ObjectId = require('mongodb').ObjectId;
 
 exports.baseUrl =
@@ -134,18 +135,16 @@ exports.baseUrl =
       const whiteList = ["/auth/sign-in", "/auth/sign-up", ];
       const isGetFileURL = (req.url.startsWith('/uploads') && req.method === 'GET');
       console.log(req.url)
-      if (isGetFileURL || req.url.includes('/socket.io/')) {
-        return next();
-      }
   
       if (!whiteList.includes(req.url)) {
         console.log(whiteList.includes(req.url))
         const token = req.headers.authorization?.split(" ")[1];
         const validToken = token ? this.validateToken(token) : {};
         const userId = validToken?._id;
+        console.log(userId, 'userId', validToken)
         if (userId) {
           const role = validToken?.role;
-          const user = await mongoose.models[this.getModelName(role)].findById(userId);
+          const user = await User.findById(userId);
           if (!user) {
             return res.status(401).json({
               type: "auth",
@@ -154,7 +153,6 @@ exports.baseUrl =
             });
           }
           if (user.isDeleted) return res.json({ success: false, msg: 'your profile has been deleted' });
-          if (permission(role, req) !== true) return res.status(403).json({ msg: "you are not allowed" });
           let admin = role == 'admin' ? userId : user?.admin;
           req.locals = {
             role: role || "user",
