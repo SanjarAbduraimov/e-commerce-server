@@ -20,67 +20,46 @@ exports.fetchAllProducts = (req, res) => {
     color_name,
   } = req.query;
   const { userType } = req.locale;
-  let sortWhiteList = [
-    'name', 'price_from', 'price_to', 'color', 'quantity_from', 'quantity_to', 'category'
-  ];
-  let queryList = { ...null };
-  sortWhiteList.forEach((query) => {
-    if (req.query[query]) {
-      queryList = { ...queryList, ...getQueryItem(query, req.query) };
-    }
-  });
- 
-  function getQueryItem(queryName, query) {
-    const { price_from, price_to, color, quantity_from, quantity_to, isFeatured, category } = query;
-
-    if (queryName === 'price_from' || queryName === 'price_to') {
-      return {
-        salePrice: {
-          $gte: +price_from || 0,
-          $lte: +price_to || Number.MAX_SAFE_INTEGER,
-        }
-      }
-    }
-    if (queryName === 'quantity_from' || queryName === 'quantity_to') {
-      return {
-        quantity: {
-          $gte: +quantity_from || 0,
-          $lte: +quantity_to || Number.MAX_SAFE_INTEGER,
-        }
-      }
-    }
-
-    if (queryName === 'color' && color) {
-      return {
-        color: {
-          $regex: color_name,
-          $options: 'i'
-        }
-      }
-    }
-
-    // store id ni ob tashadim menda qo'ysam ishlamadi balki sizlarda qo'yish kerakdur
-    // if(queryName === 'isFeatured' && Boolean(isFeatured)){
-    //   return {
-    //     isFeatured 
-    //   }
-    // }
-
-    // if (queryName === 'category' && category) {
-    //   return {
-    //     category: category
-    //   }
-    // }
+  let query = {};
+  if (category) {
+    query.category = category;
+  }
+  if (Number(price_from)) {
+    query.salePrice = { $gte: Number(price_from) };
+  }
+  if (Number(price_to)) {
+    query.salePrice = { $lte: Number(price_to) };
+  }
+  if (Number(quantity_from)) {
+    query.quantity = { $gte: Number(quantity_from) };
+  }
+  if (Number(quantity_to)) {
+    query.quantity = { $lte: Number(quantity_to) };
+  }
+  if (color_name) {
+    query.color_name = color_name;
+  }
+  if (isFeatured == 'true') {
+    query.isFeatured = Boolean(isFeatured);
+  }
+  if (Number(price_from) && Number(price_to)) {
+    query.salePrice = { $gte: Number(price_from), $lte: Number(price_to) };
+  }
+  if (Number(quantity_from) && Number(quantity_to)) {
+    query.quantity = { $gte: Number(quantity_from), $lte: Number(quantity_to) };
+  }
+  if (userType !== "customer") {
+    query.storeId = userId;
   }
 
-  let queryFilter = { ...queryList };
 
+ 
   // const storeId = userType !== "customer" ? { storeId: userId } : {};
 
-  console.log(queryFilter, 'queryFilter', isFeatured)
 
-  Products.paginate( // store id ni ob tashadim menda qo'ysam ishlamadi balki sizlarda qo'yish kerakdur
-    { ...queryFilter, isFeatured },
+
+  Products.paginate( 
+    query,
     {
       collation: collationConfig,
       page,
@@ -125,17 +104,17 @@ exports.fetchPublicProducts = (req, res) => {
 
 exports.search = (req, res) => {
   const { query, page = 1 } = req.params;
-  const { userId, userType } = req.locale;
-  const storeId =
-    userType !== "customer"
-      ? { storeId: userId, name: { $regex: query, $options: "i" } }
-      : { name: { $regex: query, $options: "i" } };
+  // const { userId, userType } = req.locale;
+  // const storeId =
+  //   userType !== "customer"
+  //     ? { storeId: userId, name: { $regex: query, $options: "i" } }
+  //     : { name: { $regex: query, $options: "i" } };
 
-  Products.paginate(storeId, {
+  Products.paginate( {
     collation: collationConfig,
     sort: { name: 1 },
     page,
-    populate: { path: "seller", select: "name" },
+    populate: { path: "category" },
     pagination: false,
   })
     .then((data) => {
@@ -147,18 +126,19 @@ exports.search = (req, res) => {
 
 exports.fetchAllProductsByCategory = (req, res) => {
   const { page = 1, category } = req.params;
-  const { userId, userType } = req.locale;
-  const storeId =
-    userType !== "customer" ? { storeId: userId, category } : { category };
+  // const { userId, userType } = req.locale;
+  // const storeId =
+  //   userType !== "customer" ? { storeId: userId, category } : { category };
   const pageSize = 10;
 
-  Products.paginate(storeId, {
+  Products.paginate({
+    category
+  },{
     collation: collationConfig,
     sort: { name: 1 },
     page,
     limit: pageSize,
-    populate: { path: "seller", select: "name" },
-    populate: { path: "category", select: "slug name uz ru" },
+    populate: { path: "category"},
   })
     .then((data) => {
       const { docs, ...pages } = data;
@@ -170,19 +150,6 @@ exports.fetchAllProductsByCategory = (req, res) => {
 exports.fetchProductsById = (req, res) => {
   const { id } = req.params;
   Products.findById(id)
-    .populate("seller", "name")
-    .populate("category")
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => res.json({ msg: err.message, success: false }));
-};
-
-exports.fetchPublicProductsById = (req, res) => {
-  const { id } = req.params;
-
-  Products.findById(id)
-    .populate("seller", "name")
     .populate("category")
     .then((data) => {
       res.json(data);
@@ -199,7 +166,6 @@ exports.deleteAllProducts = (req, res) => {
 exports.createNewProducts = async (req, res) => {
   const { name, createdAt, categoryId, categoryName, } = req.body;
   let imgFile = null;
-  const { userId, userType } = req.locale;
 
   if (webCam) {
     imgFile = await util.webImgtoFile(
@@ -223,16 +189,13 @@ exports.createNewProducts = async (req, res) => {
     ? process.env.BACKEND_URL + req.file.path.replace("public", "")
     : imgFile || webCam;
 
-  const { uzsValue } = Currency.findOne({ name: "usd" });
+  // const { uzsValue } = Currency.findOne({ name: "usd" });
 
   Products.create({
     ...req.body,
     img,
     categoryName: categoryName?.trim(),
     category: categoryId,
-    storeId: userId,
-    uzsValue,
-    seller: userType === "seller" ? userId : seller,
   })
     .then((data) => {
       res.json({ success: true, payload: data, msg: "product_created" });
@@ -246,7 +209,7 @@ exports.createNewProducts = async (req, res) => {
 exports.updateProductsById = async (req, res) => {
   const { id } = req.params;
   const { webCam, oldImg, updatedAt, name, categoryName, seller } = req.body;
-  const { userId } = req.locale;
+  // const { userId } = req.locale;
 
   let imgFile = null;
 
@@ -268,7 +231,6 @@ exports.updateProductsById = async (req, res) => {
     ...req.body,
     img,
     updatedAt: Date.now(),
-    seller: seller ? seller : userId,
   };
 
   Products.findByIdAndUpdate(id, { $set: updatedData }, { new: true })
@@ -293,13 +255,13 @@ exports.deleteProductsById = async (req, res) => {
   try {
     const deletedItem = await Products.findByIdAndRemove(id);
     util.deleteImg(deletedItem.img);
-    const cart = await Carts.find({ "items.product": id });
+    // const cart = await Carts.find({ "items.product": id });
 
-    await Carts.updateMany(
-      { "items.product": id },
-      { $pull: { items: { product: id } } },
-      { multi: true, new: true }
-    );
+    // await Carts.updateMany(
+    //   { "items.product": id },
+    //   { $pull: { items: { product: id } } },
+    //   { multi: true, new: true }
+    // );
     res.json({ payload: [], success: true });
   } catch (err) {
     res.json({ msg: err.message, success: false });

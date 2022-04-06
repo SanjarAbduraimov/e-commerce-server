@@ -26,13 +26,7 @@ const productsSchema = new Schema({
     require: true,
     type: Number
   },
-  priceUnit: {
-    default: 'uzs',
-    type: String
-  },
-  uzsValue: {
-    type: Number,
-  },
+  brand: String,
   quantity: {
     require: true,
     type: Number
@@ -42,10 +36,12 @@ const productsSchema = new Schema({
     require: true,
     type: Number
   },
-  salePriceUnit: {
-    default: 'uzs',
-    type: String
+  hasDiscount: {
+    default: false,
+    type: Boolean
   },
+  tags: [String],
+  discount: Number,
   size: String,
   updatedAt: {
     default: Date.now(),
