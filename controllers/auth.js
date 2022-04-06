@@ -24,7 +24,7 @@ exports.signIn = async (req, res) => {
         res.json({ msg: "Username or password is wrong", success: false });
       }
     } else {
-      res.json({
+      res.status(404).json({
         msg: `No user exist with user name ${email}`,
         success: false,
       });
@@ -62,7 +62,6 @@ exports.getProfile = async (req, res) => {
     error(err);
   }
 };
-
 
 function isCredentialsValid(body) {
   const { password, email } = body;

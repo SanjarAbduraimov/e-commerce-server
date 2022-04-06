@@ -197,7 +197,7 @@ exports.deleteAllProducts = (req, res) => {
 };
 
 exports.createNewProducts = async (req, res) => {
-  const { webCam, name, createdAt, categoryId, categoryName, seller } = req.body;
+  const { name, createdAt, categoryId, categoryName, } = req.body;
   let imgFile = null;
   const { userId, userType } = req.locale;
 
