@@ -45,10 +45,10 @@ app.use(
 );
 
 app.use(isLoggedIn);
+app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/categories", categoriesRouter);
 app.use("/products", productsRouter);
-app.use("/auth", authRouter);
 
 mongoose
   .connect(database, { useNewUrlParser: true, useFindAndModify: false })
