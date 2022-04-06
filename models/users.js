@@ -10,7 +10,11 @@ const userSchema = new Schema(
       type: String,
       unique: true,
     },
-    img: String,
+    city: String,
+    img: {
+      default: '',
+      type: String
+    },
     type: {
       default: "user",
       type: String,
@@ -25,6 +29,8 @@ const userSchema = new Schema(
       type: String,
       unique: true
     },
+    zip: { type: String, default: '' },
+    active: { type: Boolean, default: false },
     role: {
       default: "user",
       type: String,
