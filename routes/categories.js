@@ -11,8 +11,4 @@ router.get('/:id/edit', controllers.findById);
 router.put('/:id', multer.single('img'), controllers.updateCategory);
 router.delete('/:id', controllers.removeCategory);
 
-// router.put('/:id/edit', controllers.updateSellerById);
-// router.get('/:id/delete', controllers.deleteSellerById);
-// router.put('/:id/change-auth', controllers.changeSellerAuth);
-
 module.exports = router;

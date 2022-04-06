@@ -8,10 +8,10 @@ const collationConfig = {
 };
 
 exports.fetchCategories = async (req, res) => {
-  const { userType, userId } = req.locale;
+  // const { userType, userId } = req.locale;
   try {
-    const query = userType === "admin" ? { storeId: userId } : {};
-    const categories = await Categories.find(query)
+    // const query = userType === "admin" ? { storeId: userId } : {};
+    const categories = await Categories.find({})
       .collation(collationConfig)
       .sort("name");
     res.json({ success: true, payload: categories });
@@ -46,7 +46,7 @@ exports.findById = async (req, res) => {
 };
 
 exports.addCategory = async (req, res) => {
-  const { userId } = req.locale;
+  // const { userId } = req.locale;
   try {
     const img = req.file
       ? process.env.BACKEND_URL + req.file.path.replace("public", "")
@@ -54,7 +54,6 @@ exports.addCategory = async (req, res) => {
     const category = await Categories.create({
       ...req.body,
       img,
-      storeId: userId,
     });
     res.json({ success: true, payload: category });
     util.resizeImg(req.file, "category");
