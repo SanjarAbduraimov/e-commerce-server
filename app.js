@@ -16,6 +16,9 @@ const usersRouter = require("./routes/users");
 const categoriesRouter = require("./routes/categories");
 const productsRouter = require("./routes/products");
 const authRouter = require("./routes/auth");
+const cartsRouter = require("./routes/cart");
+const ordersRouter = require("./routes/orders");
+const favoritesRouter = require("./routes/favorites");
 
 const app = express();
 
@@ -49,6 +52,9 @@ app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/categories", categoriesRouter);
 app.use("/products", productsRouter);
+app.use("/cart", cartsRouter);
+app.use("/orders", ordersRouter);
+app.use("/favorites", favoritesRouter);
 
 mongoose
   .connect(database, { useNewUrlParser: true, useFindAndModify: false })
