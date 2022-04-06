@@ -25,7 +25,7 @@ exports.signIn = async (req, res) => {
       }
     } else {
       res.status(404).json({
-        msg: `No user exist with user name ${email}`,
+        msg: `Email or password is wrong`,
         success: false,
       });
     }
