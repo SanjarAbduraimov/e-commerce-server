@@ -48,15 +48,15 @@ exports.findById = async (req, res) => {
 exports.addCategory = async (req, res) => {
   // const { userId } = req.locale;
   try {
-    const img = req.file
-      ? process.env.BACKEND_URL + req.file.path.replace("public", "")
-      : "";
+    // const img = req.file
+    //   ? process.env.BACKEND_URL + req.file.path.replace("public", "")
+    //   : "";
     const category = await Categories.create({
       ...req.body,
-      img,
+      // img,
     });
     res.json({ success: true, payload: category });
-    util.resizeImg(req.file, "category");
+    // util.resizeImg(req.file, "category");
   } catch (err) {
     console.log(err);
     res.json({ success: false, msg: err.message });
@@ -68,7 +68,7 @@ exports.removeCategory = async (req, res) => {
   try {
     const category = await Categories.findByIdAndDelete(id);
     res.json({ success: true, payload: category });
-    util.deleteImg(category.img);
+    // util.deleteImg(category.img);
   } catch (err) {
     console.log(err);
     res.json({ success: false, msg: err.message });
@@ -76,15 +76,15 @@ exports.removeCategory = async (req, res) => {
 };
 
 exports.updateCategory = async (req, res) => {
-  const { oldImg } = req.body;
+  // const { oldImg } = req.body;
   const { id } = req.params;
-  const img = req.file
-    ? process.env.BACKEND_URL + req.file.path.replace("public", "")
-    : oldImg;
+  // const img = req.file
+  //   ? process.env.BACKEND_URL + req.file.path.replace("public", "")
+  //   : oldImg;
 
   const data = {
     ...req.body,
-    img,
+    // img,
     updatedAt: Date.now(),
   };
   try {
@@ -94,7 +94,7 @@ exports.updateCategory = async (req, res) => {
       { new: true }
     );
     res.json({ success: true, payload: categories });
-    if (req.file) util.deleteImg(oldImg);
+    // if (req.file) util.deleteImg(oldImg);
   } catch (err) {
     console.log(err);
     res.json({ success: false, msg: err.message });
