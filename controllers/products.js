@@ -167,13 +167,13 @@ exports.createNewProducts = async (req, res) => {
   const { name, createdAt, categoryId, categoryName, } = req.body;
   let imgFile = null;
 
-  if (webCam) {
-    imgFile = await util.webImgtoFile(
-      webCam,
-      "products",
-      `${name}-${createdAt}`
-    );
-  }
+  // if (webCam) {
+  //   imgFile = await util.webImgtoFile(
+  //     webCam,
+  //     "products",
+  //     `${name}-${createdAt}`
+  //   );
+  // }
 
   const category = await Category.findById(categoryId);
 
@@ -181,9 +181,9 @@ exports.createNewProducts = async (req, res) => {
     return res.status(400).json({ success: false, msg: "No Category with this CategoryId" });
   }
 
-  if (category?.name?.trim() !== categoryName?.trim()) {
-    return res.status(400).json({ success: false, msg: "CategoryName is not match to category's name" });
-  }
+  // if (category?.name?.trim() !== categoryName?.trim()) {
+  //   return res.status(400).json({ success: false, msg: "CategoryName is not match to category's name" });
+  // }
 
   const img = req.file
     ? process.env.BACKEND_URL + req.file.path.replace("public", "")
@@ -194,7 +194,6 @@ exports.createNewProducts = async (req, res) => {
   Products.create({
     ...req.body,
     img,
-    categoryName: categoryName?.trim(),
     category: categoryId,
   })
     .then((data) => {
