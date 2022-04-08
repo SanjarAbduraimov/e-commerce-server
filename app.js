@@ -47,7 +47,7 @@ app.use(
   })
 );
 
-app.use(isLoggedIn);
+// app.use(isLoggedIn);
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/categories", categoriesRouter);
