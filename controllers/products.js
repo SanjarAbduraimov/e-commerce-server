@@ -106,7 +106,7 @@ exports.search = (req, res) => {
   //     ? { storeId: userId, name: { $regex: query, $options: "i" } }
   //     : { name: { $regex: query, $options: "i" } };
 
-  Products.paginate( {
+  Products.paginate( { name: { $regex: query, $options: "i" } }, {
     collation: collationConfig,
     sort: { name: 1 },
     page,
@@ -203,24 +203,24 @@ exports.createNewProducts = async (req, res) => {
 
 exports.updateProductsById = async (req, res) => {
   const { id } = req.params;
-  const { webCam, oldImg, updatedAt, name, categoryName, seller } = req.body;
+  const { oldImg, updatedAt, name, categoryName, } = req.body;
   // const { userId } = req.locale;
 
   let imgFile = null;
 
-  if (webCam) {
-    imgFile = await util.webImgtoFile(
-      webCam,
-      "products",
-      `${name}-${updatedAt}`,
-      true,
-      oldImg
-    );
-  }
+  // if (webCam) {
+  //   imgFile = await util.webImgtoFile(
+  //     webCam,
+  //     "products",
+  //     `${name}-${updatedAt}`,
+  //     true,
+  //     oldImg
+  //   );
+  // }
 
   const img = req.file
     ? process.env.BACKEND_URL + req.file.path.replace("public", "")
-    : imgFile || webCam || oldImg;
+    : imgFile || oldImg;
 
   const updatedData = {
     ...req.body,
