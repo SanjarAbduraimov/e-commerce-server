@@ -19,7 +19,6 @@ exports.fetchAllProducts = (req, res) => {
     quantity_to,
     color_name,
   } = req.query;
-  const { userType } = req.locale;
   let query = {};
   if (category) {
     query.category = category;
@@ -39,18 +38,15 @@ exports.fetchAllProducts = (req, res) => {
   if (color_name) {
     query.color_name = color_name;
   }
-  if (isFeatured == 'true') {
-    query.isFeatured = Boolean(isFeatured);
-  }
   if (Number(price_from) && Number(price_to)) {
     query.salePrice = { $gte: Number(price_from), $lte: Number(price_to) };
   }
   if (Number(quantity_from) && Number(quantity_to)) {
     query.quantity = { $gte: Number(quantity_from), $lte: Number(quantity_to) };
   }
-  if (userType !== "customer") {
-    query.storeId = userId;
-  }
+  // if (userType !== "customer") {
+  //   query.storeId = userId;
+  // }
 
 
  
@@ -187,7 +183,7 @@ exports.createNewProducts = async (req, res) => {
 
   const img = req.file
     ? process.env.BACKEND_URL + req.file.path.replace("public", "")
-    : imgFile || webCam;
+    : imgFile;
 
   // const { uzsValue } = Currency.findOne({ name: "usd" });
 
