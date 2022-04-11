@@ -17,7 +17,7 @@ exports.fetchAllProducts = (req, res) => {
     price_to,
     quantity_from = 0,
     quantity_to,
-    color_name,
+    color,
   } = req.query;
   let query = {};
   if (category) {
@@ -35,8 +35,8 @@ exports.fetchAllProducts = (req, res) => {
   if (Number(quantity_to)) {
     query.quantity = { $lte: Number(quantity_to) };
   }
-  if (color_name) {
-    query.color_name = color_name;
+  if (color) {
+    query.color = color;
   }
   if (Number(price_from) && Number(price_to)) {
     query.salePrice = { $gte: Number(price_from), $lte: Number(price_to) };
