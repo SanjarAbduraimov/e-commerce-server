@@ -5,43 +5,45 @@ const path = require("path");
 const storage = multer.diskStorage({
   filename(req, file, cb) {
     const {
-      edit,
+      edit = false,
       createdAt = Date.now(),
       updatedAt = Date.now(),
       name,
       oldImg = "",
     } = req.body;
-
-    if (edit || req.url.endsWith("edit")) {
-      let dir = `public${oldImg}`;
-      // if (process.env.NODE_ENV !== "development") {
-      //   dir = `/var/www/${oldImg}/`;
-      // }
-      const fielExist = fs.existsSync(dir);
-      cb(
-        null,
-        `${
-          name.toLowerCase().replace(/\s+/g, "-") + updatedAt
-        }-edited${path.extname(file.originalname)}`
-      );
-
-      if (fielExist && oldImg) {
-        fs.unlinkSync(dir);
+    
+    try {
+      if (edit || req.url.endsWith("edit")) {
+        let dir = `public${oldImg}`;
+        // if (process.env.NODE_ENV !== "development") {
+        //   dir = `/var/www/${oldImg}/`;
+        // }
+        const fielExist = fs.existsSync(dir);
+        cb(
+          null,
+          `${
+            name.toLowerCase().replace(/\s+/g, "-") + updatedAt
+          }-edited${path?.extname(file.originalname)}`
+        );
+        
+        if (fielExist && oldImg) {
+          fs.unlinkSync(dir);
+        }
+      } else {
+        cb(
+          null,
+          `${`${name
+            .toLowerCase()
+            .replace(/\s+/g, "-")}-${createdAt}`}${path?.extname(file.originalname)}`
+        );
       }
-    } else {
-      cb(
-        null,
-        `${`${name
-          .toLowerCase()
-          .replace(/\s+/g, "-")}-${createdAt}`}${path.extname(
-          file.originalname
-        )}`
-      );
+    } catch (error) {
+      console.log(error);
     }
   },
 
   destination(req, file, cb) {
-    const { name = "location" } = req.body;
+    const { name = "product" } = req.body;
     let dir = `public/uploads/${name}/`;
 
     // if (process.env.NODE_ENV !== "development") {
