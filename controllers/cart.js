@@ -19,6 +19,24 @@ exports.fetchAllCarts = (req, res) => {
     .catch((err) => res.json({ msg: err.message, success: false }));
 };
 
+exports.createCart = (req, res) => {
+  const { userId } = req.body;
+  const cart = new Carts({
+    clientId: userId,
+    total: 0,
+    uzsValue: 0,
+    items: [],
+    qty: 0,
+  });
+  cart
+    .save()
+    .then((data) => {
+      res.json({ success: true, payload: data });
+    })
+    .catch((err) => res.json({ msg: err.message, success: false }));
+};
+
+
 exports.addToCartById = (req, res) => {
   const { product, qty, total } = req.body;
   const _id = req.params.id
