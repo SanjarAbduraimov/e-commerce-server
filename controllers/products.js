@@ -100,6 +100,7 @@ exports.fetchPublicProducts = (req, res) => {
 
 exports.search = (req, res) => {
   const { query, page = 1 } = req.params;
+  console.log(query)
   // const { userId, userType } = req.locale;
   // const storeId =
   //   userType !== "customer"
