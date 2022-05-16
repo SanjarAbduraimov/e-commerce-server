@@ -10,7 +10,7 @@ const userSchema = new Schema(
       type: String,
       unique: true,
     },
-    city: String,
+    city: String, 
     img: {
       default: '',
       type: String
