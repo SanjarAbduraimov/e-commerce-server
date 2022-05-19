@@ -7,7 +7,7 @@ const cors = require("cors");
 const MongoStore = require("connect-mongo")(session);
 const compression = require("compression");
 const isLoggedIn = require("./utils/index").authHandler;
-
+const dotenv = require("dotenv");
 const port = process.env.PORT || 9999;
 
 const database = "mongodb://localhost/server-students-db";
@@ -22,6 +22,7 @@ const favoritesRouter = require("./routes/favorites");
 
 const app = express();
 
+dotenv.config({ path: path.resolve(__dirname, "./.env") });
 const corsOptions = {
   credentials: true,
   origin: true,
@@ -67,5 +68,3 @@ app.listen(port, () =>
   console.log(`App is running on server localhost: ${port}`)
 );
 module.exports = app;
-
-

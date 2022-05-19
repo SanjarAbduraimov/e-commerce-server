@@ -1,6 +1,7 @@
 const Products = require("../models/products");
 const Category = require("../models/categories");
 const util = require("../utils");
+const path = require("path");
 // const Carts = require("../models/cart");
 
 const collationConfig = {
@@ -48,29 +49,22 @@ exports.fetchAllProducts = (req, res) => {
   //   query.storeId = userId;
   // }
 
-
- 
   // const storeId = userType !== "customer" ? { storeId: userId } : {};
 
-
-
-  Products.paginate( 
-    query,
-    {
-      collation: collationConfig,
-      page,
-      limit: pageSize, 
-      populate: {
-        path: "category",
-      },
-    }
-  )
+  Products.paginate(query, {
+    collation: collationConfig,
+    page,
+    limit: pageSize,
+    populate: {
+      path: "category",
+    },
+  })
     .then((data) => {
       const { docs, ...pages } = data;
       res.json({ data: docs, pages, success: true });
     })
     .catch((err) => res.json({ msg: err.message, success: false }));
-}; 
+};
 
 exports.fetchPublicProducts = (req, res) => {
   const { page = 1 } = req.query;
@@ -92,7 +86,7 @@ exports.fetchPublicProducts = (req, res) => {
   )
     .then((data) => {
       const { docs, ...pages } = data;
-      console.log(data)
+      console.log(data);
       res.json({ data: docs, pages, success: true });
     })
     .catch((err) => res.json({ msg: err.message, success: false }));
@@ -100,20 +94,23 @@ exports.fetchPublicProducts = (req, res) => {
 
 exports.search = (req, res) => {
   const { query, page = 1 } = req.params;
-  console.log(query)
+  console.log(query);
   // const { userId, userType } = req.locale;
   // const storeId =
   //   userType !== "customer"
   //     ? { storeId: userId, name: { $regex: query, $options: "i" } }
   //     : { name: { $regex: query, $options: "i" } };
 
-  Products.paginate( { name: { $regex: query, $options: "i" } }, {
-    collation: collationConfig,
-    sort: { name: 1 },
-    page,
-    populate: { path: "category" },
-    pagination: false,
-  })
+  Products.paginate(
+    { name: { $regex: query, $options: "i" } },
+    {
+      collation: collationConfig,
+      sort: { name: 1 },
+      page,
+      populate: { path: "category" },
+      pagination: false,
+    }
+  )
     .then((data) => {
       const { docs, ...pages } = data;
       res.json({ payload: docs, pages, success: true });
@@ -128,15 +125,18 @@ exports.fetchAllProductsByCategory = (req, res) => {
   //   userType !== "customer" ? { storeId: userId, category } : { category };
   const pageSize = 10;
 
-  Products.paginate({
-    category
-  },{
-    collation: collationConfig,
-    sort: { name: 1 },
-    page,
-    limit: pageSize,
-    populate: { path: "category"},
-  })
+  Products.paginate(
+    {
+      category,
+    },
+    {
+      collation: collationConfig,
+      sort: { name: 1 },
+      page,
+      limit: pageSize,
+      populate: { path: "category" },
+    }
+  )
     .then((data) => {
       const { docs, ...pages } = data;
       res.json({ data: docs, pages, success: true });
@@ -161,7 +161,7 @@ exports.deleteAllProducts = (req, res) => {
 };
 
 exports.createNewProducts = async (req, res) => {
-  const { name, createdAt, categoryId, categoryName, } = req.body;
+  const { name, createdAt, categoryId, categoryName } = req.body;
   let imgFile = null;
 
   // if (webCam) {
@@ -175,15 +175,23 @@ exports.createNewProducts = async (req, res) => {
   const category = await Category.findById(categoryId);
 
   if (!category) {
-    return res.status(400).json({ success: false, msg: "No Category with this CategoryId" });
+    return res
+      .status(400)
+      .json({ success: false, msg: "No Category with this CategoryId" });
   }
 
   // if (category?.name?.trim() !== categoryName?.trim()) {
   //   return res.status(400).json({ success: false, msg: "CategoryName is not match to category's name" });
   // }
-
   const img = req.file
-    ? process.env.BACKEND_URL + req.file.path.replace("public", "")
+    ? process.env.BACKEND_URL +
+      req.file.path
+        .replace("public", "")
+        .replace("\\", "/")
+        .replace(
+          path.extname(req.file.path),
+          "-resized" + path.extname(req.file.path)
+        )
     : imgFile;
 
   // const { uzsValue } = Currency.findOne({ name: "usd" });
@@ -204,7 +212,7 @@ exports.createNewProducts = async (req, res) => {
 
 exports.updateProductsById = async (req, res) => {
   const { id } = req.params;
-  const { oldImg, updatedAt, name, categoryName, } = req.body;
+  const { oldImg, updatedAt, name, categoryName } = req.body;
   // const { userId } = req.locale;
 
   let imgFile = null;
