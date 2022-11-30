@@ -8,7 +8,7 @@ const { createToken, createFileUrl, resizeImg } = require("../utils/index");
 exports.signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body, 'booodyyy')
+    console.log(req.body, "booodyyy");
     if (isCredentialsValid(req.body) !== true) {
       return res.status(400).json(isCredentialsValid);
     }
@@ -17,7 +17,11 @@ exports.signIn = async (req, res) => {
       const { password: hash } = user;
       const isPasswordCorrect = await bcrypt.compare(password, hash);
       const token = createToken({ _id: user._id, role: user.role ?? "user" });
-      console.log('user is found and password is correct', isPasswordCorrect, user);
+      console.log(
+        "user is found and password is correct",
+        isPasswordCorrect,
+        user
+      );
       if (isPasswordCorrect) {
         res.json({ payload: user, token, success: true });
       } else {
@@ -36,11 +40,13 @@ exports.signIn = async (req, res) => {
 
 exports.signUp = async (req, res) => {
   const { password, email } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, 8);
 
+  console.log(req.body);
   try {
-    if (!email) return res.status(400).json({ msg: 'email required' });
-    if (!req.body.password) return res.status(400).json({ msg: 'password required' });
+    if (!email) return res.status(400).json({ msg: "email required" });
+    if (!req.body.password)
+      return res.status(400).json({ msg: "password required" });
+    const hashedPassword = bcrypt.hashSync(password, 8);
     const user = await Users.create({ ...req.body, password: hashedPassword });
     const token = createToken({ _id: user?._id, role: user?.role ?? "user" });
     res.json({ user: user, token, success: true });
@@ -65,8 +71,8 @@ exports.getProfile = async (req, res) => {
 
 function isCredentialsValid(body) {
   const { password, email } = body;
-  if (!password && (!email)) return ({ msg: 'email and password required' });
-  if (!password) return ({ msg: 'password required' });
-  if (!email) return ({ msg: 'email or phone is required' });
+  if (!password && !email) return { msg: "email and password required" };
+  if (!password) return { msg: "password required" };
+  if (!email) return { msg: "email or phone is required" };
   return true;
-};
+}

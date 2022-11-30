@@ -10,8 +10,6 @@ const isLoggedIn = require("./utils/index").authHandler;
 const dotenv = require("dotenv");
 const port = process.env.PORT || 9999;
 
-const database = "mongodb://localhost/server-students-db";
-
 const usersRouter = require("./routes/users");
 const categoriesRouter = require("./routes/categories");
 const productsRouter = require("./routes/products");
@@ -23,6 +21,7 @@ const favoritesRouter = require("./routes/favorites");
 const app = express();
 
 dotenv.config({ path: path.resolve(__dirname, "./.env") });
+const database = process.env.DB_URI || "mongodb://localhost/server-students-db";
 const corsOptions = {
   credentials: true,
   origin: true,
@@ -48,7 +47,7 @@ app.use(
   })
 );
 
-// app.use(isLoggedIn);
+app.use(isLoggedIn);
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/categories", categoriesRouter);
