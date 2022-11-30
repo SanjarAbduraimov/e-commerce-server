@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "v16.13.0"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
