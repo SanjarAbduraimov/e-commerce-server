@@ -1,9 +1,8 @@
 const Products = require("../models/products");
 const Category = require("../models/categories");
 const util = require("../utils");
-const path = require("path");
-// const Carts = require("../models/cart");
 
+// const Carts = req{uire("../models/cart");
 const collationConfig = {
   numericOrdering: true,
   locale: "en",
@@ -21,6 +20,7 @@ exports.fetchAllProducts = (req, res) => {
     color,
   } = req.query;
   let query = {};
+
   if (category) {
     query.category = category;
   }
@@ -55,9 +55,11 @@ exports.fetchAllProducts = (req, res) => {
     collation: collationConfig,
     page,
     limit: pageSize,
-    populate: {
-      path: "category",
-    },
+    populate: [
+      {
+        path: "category",
+      },
+    ],
   })
     .then((data) => {
       const { docs, ...pages } = data;
@@ -147,7 +149,7 @@ exports.fetchAllProductsByCategory = (req, res) => {
 exports.fetchProductsById = (req, res) => {
   const { id } = req.params;
   Products.findById(id)
-    .populate("category")
+    .populate("category", "img")
     .then((data) => {
       res.json(data);
     })
@@ -162,48 +164,18 @@ exports.deleteAllProducts = (req, res) => {
 
 exports.createNewProducts = async (req, res) => {
   const { name, createdAt, categoryId, categoryName } = req.body;
-  let imgFile = null;
-
-  // if (webCam) {
-  //   imgFile = await util.webImgtoFile(
-  //     webCam,
-  //     "products",
-  //     `${name}-${createdAt}`
-  //   );
-  // }
-
   const category = await Category.findById(categoryId);
-
-  if (!category) {
+  if (!category)
     return res
-      .status(400)
-      .json({ success: false, msg: "No Category with this CategoryId" });
-  }
-
-  // if (category?.name?.trim() !== categoryName?.trim()) {
-  //   return res.status(400).json({ success: false, msg: "CategoryName is not match to category's name" });
-  // }
-  const img = req.file
-    ? process.env.BACKEND_URL +
-      req.file.path
-        .replace("public", "")
-        .replace("\\", "/")
-        .replace(
-          path.extname(req.file.path),
-          "-resized" + path.extname(req.file.path)
-        )
-    : imgFile;
-
-  // const { uzsValue } = Currency.findOne({ name: "usd" });
-
+      .status(404)
+      .json({ success: false, msg: "Category is not found" });
   Products.create({
     ...req.body,
-    img,
+    img: req.file.id,
     category: categoryId,
   })
     .then((data) => {
       res.json({ success: true, payload: data, msg: "product_created" });
-      util.resizeImg(req.file, "product");
     })
     .catch((err) => {
       res.json({ success: false, msg: err.message });
@@ -212,46 +184,33 @@ exports.createNewProducts = async (req, res) => {
 
 exports.updateProductsById = async (req, res) => {
   const { id } = req.params;
-  const { oldImg, updatedAt, name, categoryName } = req.body;
-  // const { userId } = req.locale;
-
+  const { oldImg } = req.body;
   let imgFile = null;
 
-  // if (webCam) {
-  //   imgFile = await util.webImgtoFile(
-  //     webCam,
-  //     "products",
-  //     `${name}-${updatedAt}`,
-  //     true,
-  //     oldImg
-  //   );
-  // }
-
-  const img = req.file
-    ? process.env.BACKEND_URL + req.file.path.replace("public", "")
-    : imgFile || oldImg;
+  // const img = req.file
+  //   ? process.env.BACKEND_URL + req.file.path.replace("public", "")
+  //   : imgFile || oldImg;
 
   const updatedData = {
     ...req.body,
-    img,
     updatedAt: Date.now(),
   };
 
-  Products.findByIdAndUpdate(id, { $set: updatedData }, { new: true })
-    .then((data) => {
-      res.json({
-        success: true,
-        payload: data,
-        msg: "product_updated",
-      });
-
-      if (img.startsWith("data:image/jpeg;base64")) {
-        util.deleteImg(oldImg);
-      } else {
-        util.resizeImg(req.file, "product");
-      }
-    })
-    .catch((err) => res.json({ msg: err.message, success: false }));
+  const product = await Products.findByIdAndUpdate(
+    id,
+    { $set: updatedData },
+    { new: true }
+  );
+  // if (oldImg) {
+  //   // util.deleteImg(oldImg);
+  // } else {
+  //   // util.resizeImg(req.file, "product");
+  // }
+  res.json({
+    success: true,
+    payload: product,
+    msg: "product_updated",
+  });
 };
 
 exports.deleteProductsById = async (req, res) => {

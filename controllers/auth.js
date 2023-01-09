@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const Carts = require("../models/cart");
 const Users = require("../models/users");
 const error = (err) => {
   console.log(chalk.red(err));
@@ -41,15 +42,24 @@ exports.signIn = async (req, res) => {
 exports.signUp = async (req, res) => {
   const { password, email } = req.body;
 
-  console.log(req.body);
   try {
     if (!email) return res.status(400).json({ msg: "email required" });
     if (!req.body.password)
       return res.status(400).json({ msg: "password required" });
     const hashedPassword = bcrypt.hashSync(password, 8);
-    const user = await Users.create({ ...req.body, password: hashedPassword });
+    const user = new Users({ ...req.body, password: hashedPassword });
+    const cart = new Carts({
+      clientId: user._id,
+      total: 0,
+      uzsValue: 0,
+      items: [],
+      qty: 0,
+    });
+    user.cart = cart._id;
+    await user.save();
+    await cart.save();
     const token = createToken({ _id: user?._id, role: user?.role ?? "user" });
-    res.json({ user: user, token, success: true });
+    res.status(201).json({ user, token, success: true });
   } catch (err) {
     const msg =
       err.code === 11000

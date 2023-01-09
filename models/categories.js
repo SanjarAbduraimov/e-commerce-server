@@ -1,23 +1,23 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const categorySchema = new Schema({
   createdAt: {
     default: Date.now(),
-    type: Date
+    type: Date,
   },
   en: String,
   name: String,
-  img: { type: String, default: '' },
+  img: { type: Schema.Types.ObjectId, ref: "File" },
   products: { type: Number, default: 0 },
   ru: String,
   updatedAt: {
     default: Date.now(),
-    type: Date
+    type: Date,
   },
-  uz: String
+  uz: String,
 });
 
-const Categories = mongoose.model('Category', categorySchema);
+const Categories = mongoose.model("Category", categorySchema);
 
 module.exports = Categories;

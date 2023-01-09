@@ -36,10 +36,9 @@ exports.createCart = (req, res) => {
     .catch((err) => res.json({ msg: err.message, success: false }));
 };
 
-
 exports.addToCartById = (req, res) => {
   const { product, qty, total } = req.body;
-  const _id = req.params.id
+  const _id = req.params.id;
 
   Carts.findById(_id)
     .populate({ path: "items.product" })

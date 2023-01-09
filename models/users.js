@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const userSchema = new Schema(
   {
@@ -10,11 +10,8 @@ const userSchema = new Schema(
       type: String,
       unique: true,
     },
-    city: String, 
-    img: {
-      default: '',
-      type: String
-    },
+    city: String,
+    img: { type: Schema.Types.ObjectId, ref: "File" },
     type: {
       default: "user",
       type: String,
@@ -27,9 +24,10 @@ const userSchema = new Schema(
     },
     phone: {
       type: String,
-      unique: true
+      unique: true,
     },
-    zip: { type: String, default: '' },
+    cart: { type: Schema.Types.ObjectId, ref: "Cart", required: true },
+    zip: { type: String, default: "" },
     active: { type: Boolean, default: false },
     role: {
       default: "user",

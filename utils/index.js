@@ -4,7 +4,6 @@ const sharp = require("sharp");
 const jwt = require("jsonwebtoken");
 const { baseUrl } = require("../utils");
 const { SECRET_KEY, RESET_PASSWORD_KEY } = require("../constants");
-const mongoose = require("mongoose");
 const User = require("../models/users");
 const ObjectId = require("mongodb").ObjectId;
 
@@ -38,7 +37,6 @@ exports.deleteImg = (img) => {
     const imgPath = this.getImgPath(img);
     if (fs.existsSync(imgPath) && img) {
       fs.unlinkSync(imgPath);
-      console.log("File deleted");
     }
   }
 };
@@ -135,47 +133,43 @@ exports.webImgtoFile = (str, category, name, edit, oldImg) => {
 exports.authHandler = async (req, res, next) => {
   try {
     const whiteList = ["/auth/sign-in", "/auth/sign-up", "/products/public"];
-    const isGetFileURL = req.url.startsWith("/uploads") && req.method === "GET";
-    console.log(req.url);
+    // const isGetFileURL = req.url.startsWith("/uploads") && req.method === "GET";
 
-    if (!whiteList.includes(req.url)) {
-      console.log(whiteList.includes(req.url));
-      const token = req.headers.authorization?.split(" ")[1];
-      const validToken = token ? this.validateToken(token) : {};
-      const userId = validToken?._id;
-      console.log(userId, "userId", validToken);
-      if (userId) {
-        const role = validToken?.role;
-        const user = await User.findById(userId);
-        if (!user) {
-          return res.status(401).json({
-            type: "auth",
-            msg: "You need to login/sign up first",
-            success: false,
-          });
-        }
-        if (user.isDeleted)
-          return res.json({
-            success: false,
-            msg: "your profile has been deleted",
-          });
-        let admin = role == "admin" ? userId : user?.admin;
-        req.locals = {
-          role: role || "user",
-          _id: userId,
-          admin: ObjectId(admin),
-        };
-        return next();
-      }
-      return res.status(401).json({
-        type: "auth",
-        msg: "You need to login/sign up first",
-        success: false,
-      });
+    if (whiteList.includes(req.url)) {
+      return next();
     }
-    return next();
+    const token = req.headers.authorization?.split(" ")[1];
+    const validToken = token ? this.validateToken(token) : {};
+    const userId = validToken?._id;
+    if (userId) {
+      const role = validToken?.role;
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(401).json({
+          type: "auth",
+          msg: "You need to login/sign up first",
+          success: false,
+        });
+      }
+      if (user.isDeleted)
+        return res.json({
+          success: false,
+          msg: "your profile has been deleted",
+        });
+      let admin = role == "admin" ? userId : user?.admin;
+      req.locals = {
+        role: role || "user",
+        _id: userId,
+        admin: ObjectId(admin),
+      };
+      return next();
+    }
+    return res.status(401).json({
+      type: "auth",
+      msg: "You need to login/sign up first",
+      success: false,
+    });
   } catch (err) {
-    console.log(err);
     throw new Error(err);
   }
 };
@@ -192,7 +186,6 @@ exports.validateToken = (token, type = "auth") => {
     const key = type == "password" ? RESET_PASSWORD_KEY : SECRET_KEY;
     return jwt.verify(token, key);
   } catch (err) {
-    console.log(err);
     return {};
   }
 };
